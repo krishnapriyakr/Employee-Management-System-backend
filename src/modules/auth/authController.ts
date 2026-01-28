@@ -111,6 +111,7 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
 // Get Current User
 export const getMe = async (req: Request, res: Response) => {
   try {
