@@ -28,7 +28,7 @@ export const findAllEmployees = async (
   limit: number = 10,
   search: string = '',
   department: string = ''
-): Promise<{ employees: IEmployee[]; total: number; pages: number }> => {
+): Promise<{ employees: IEmployee[]; total: number; pages: number }> => { 
   const query: any = {};
 
   if (search) {

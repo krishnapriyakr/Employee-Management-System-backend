@@ -19,7 +19,7 @@ router.get('/',protect, employeesController.getAllEmployees);
 // Delete an employee
 router.delete('/:id',protect, employeesController.deleteEmployee);
 
-// Get dashboard statistics
+// Get dashboard
 router.get('/stats/dashboard',protect, employeesController.getDashboardStats);
 
 export default router;
