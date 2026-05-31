@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 // Routes
 import authRoutes from './modules/auth/authRoutes';
 import employeesRoutes from './modules/employees/employeesRoutes';
-
+import leaveRoutes from './modules/leave/leaveRoutes';
 // Load environment variables
 dotenv.config();
 
@@ -26,6 +26,8 @@ mongoose.connect(process.env.MONGODB_URI as string)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeesRoutes);
+
+app.use('/api/leave', leaveRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
