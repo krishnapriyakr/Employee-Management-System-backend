@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import LeaveRequestModel, { ILeaveRequest } from '../../models/LeaveRequest';
 import LeaveBalanceModel, { ILeaveBalance } from '../../models/LeaveBalance';
 
@@ -47,9 +47,20 @@ export const findPendingRequests = async (): Promise<ILeaveRequest[]> => {
 };
 
 export const updateLeaveRequest = async (id: string, updateData: any): Promise<ILeaveRequest | null> => {
+  // Ensure id is valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error('Invalid leave request ID');
+  }
+
+  // Handle approvedBy if present
+  const dataToUpdate = { ...updateData };
+  if (dataToUpdate.approvedBy && typeof dataToUpdate.approvedBy === 'string') {
+    dataToUpdate.approvedBy = new mongoose.Types.ObjectId(dataToUpdate.approvedBy);
+  }
+
   return await LeaveRequestModel.findByIdAndUpdate(
     id,
-    { $set: updateData },
+    { $set: dataToUpdate },
     { new: true, runValidators: true }
   );
 };

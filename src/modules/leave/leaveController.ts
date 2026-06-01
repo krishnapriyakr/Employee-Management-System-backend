@@ -92,6 +92,15 @@ export const approveLeave = async (req: AuthRequest, res: Response) => {
 
     const { id } = req.params;
     const { comments } = req.body;
+    
+    // Validate id
+    if (!id || id === 'undefined' || id === 'null') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid leave request ID'
+      });
+    }
+
     const result = await leaveService.approveLeave(id, req.user.userId, comments);
 
     if (!result.success) {
@@ -100,6 +109,7 @@ export const approveLeave = async (req: AuthRequest, res: Response) => {
 
     res.json(result);
   } catch (error: any) {
+    console.error('Approve leave controller error:', error);
     res.status(500).json({
       success: false,
       message: 'Error approving leave',

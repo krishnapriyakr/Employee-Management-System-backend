@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import * as leaveRepository from './leaveRepository';
 
 // Helper: Calculate working days (excluding weekends)
@@ -116,6 +117,21 @@ export const applyForLeave = async (employeeId: string, leaveData: any) => {
 
 export const approveLeave = async (leaveId: string, adminId: string, comments?: string) => {
   try {
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(leaveId)) {
+      return {
+        success: false,
+        message: 'Invalid leave request ID'
+      };
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(adminId)) {
+      return {
+        success: false,
+        message: 'Invalid admin ID'
+      };
+    }
+
     const leaveRequest = await leaveRepository.findLeaveRequestById(leaveId);
     
     if (!leaveRequest) {
@@ -147,8 +163,8 @@ export const approveLeave = async (leaveId: string, adminId: string, comments?: 
     
     const updatedRequest = await leaveRepository.updateLeaveRequest(leaveId, {
       status: 'approved',
-      approvedBy: adminId,
-      comments,
+      approvedBy: new mongoose.Types.ObjectId(adminId), // Convert to ObjectId
+      comments: comments || '',
       updatedAt: new Date()
     });
     
@@ -158,6 +174,7 @@ export const approveLeave = async (leaveId: string, adminId: string, comments?: 
       data: updatedRequest
     };
   } catch (error: any) {
+    console.error('Approve leave error:', error);
     return {
       success: false,
       message: 'Error approving leave',
