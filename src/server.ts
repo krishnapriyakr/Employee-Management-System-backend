@@ -8,6 +8,8 @@ import authRoutes from './modules/auth/authRoutes';
 import employeesRoutes from './modules/employees/employeesRoutes';
 import leaveRoutes from './modules/leave/leaveRoutes';
 import attendanceRoutes from './modules/attendance/attendanceRoutes';
+import performanceRoutes from './modules/performance/performanceRoutes';
+
 // Load environment variables
 dotenv.config();
 
@@ -27,10 +29,9 @@ mongoose.connect(process.env.MONGODB_URI as string)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeesRoutes);
-
 app.use('/api/leave', leaveRoutes);
-
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/performance', performanceRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
