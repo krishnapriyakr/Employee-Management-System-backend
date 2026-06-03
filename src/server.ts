@@ -9,6 +9,9 @@ import employeesRoutes from './modules/employees/employeesRoutes';
 import leaveRoutes from './modules/leave/leaveRoutes';
 import attendanceRoutes from './modules/attendance/attendanceRoutes';
 import performanceRoutes from './modules/performance/performanceRoutes';
+import documentRoutes from './modules/documents/documentsRoutes';
+
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +35,11 @@ app.use('/api/employees', employeesRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/performance', performanceRoutes);
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Add after other routes
+app.use('/api/documents', documentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
