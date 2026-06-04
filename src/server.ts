@@ -10,6 +10,7 @@ import leaveRoutes from './modules/leave/leaveRoutes';
 import attendanceRoutes from './modules/attendance/attendanceRoutes';
 import performanceRoutes from './modules/performance/performanceRoutes';
 import documentRoutes from './modules/documents/documentsRoutes';
+import recruitmentRoutes from './modules/recruitment/recruitmentRoutes';
 
 import path from 'path';
 
@@ -38,8 +39,11 @@ app.use('/api/performance', performanceRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Add after other routes
 app.use('/api/documents', documentRoutes);
+
+app.use('/uploads/resumes', express.static(path.join(__dirname, '../uploads/resumes')));
+
+app.use('/api/recruitment', recruitmentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
