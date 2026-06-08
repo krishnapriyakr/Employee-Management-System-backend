@@ -12,6 +12,7 @@ import performanceRoutes from './modules/performance/performanceRoutes';
 import documentRoutes from './modules/documents/documentsRoutes';
 import recruitmentRoutes from './modules/recruitment/recruitmentRoutes';
 import shiftRoutes from './modules/shift/shiftRoutes';
+import payrollRoutes from './modules/payroll/payrollRoutes';
 
 import path from 'path';
 
@@ -47,6 +48,8 @@ app.use('/uploads/resumes', express.static(path.join(__dirname, '../uploads/resu
 app.use('/api/recruitment', recruitmentRoutes);
 
 app.use('/api/shift', shiftRoutes);
+
+app.use('/api/payroll', payrollRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
