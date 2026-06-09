@@ -15,6 +15,8 @@ import shiftRoutes from './modules/shift/shiftRoutes';
 import payrollRoutes from './modules/payroll/payrollRoutes';
 
 import path from 'path';
+import { verifyEmailConnection } from './config/emailConfig';
+import { startAttendanceReminderJob } from './jobs/attendanceReminderJob';
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +33,12 @@ app.use(express.urlencoded({ extended: true }));
 mongoose.connect(process.env.MONGODB_URI as string)
   .then(() => console.log(' MongoDB connected successfully'))
   .catch((error) => console.log(' MongoDB connection error:', error));
+
+  // Verify email connection (don't block startup if email fails)
+verifyEmailConnection().catch(console.error);
+
+// Start attendance reminder cron job
+startAttendanceReminderJob();
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -60,7 +68,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-
+// TEST EMAIL ENDPOINT - Remove after testing
+app.post('/api/test-email', async (req, res) => {
+  const { sendEmail } = await import('./config/emailConfig');
+  const result = await sendEmail(
+    'YOUR_EMAIL@gmail.com',  // Change to your email
+    'Test Email from EMS',
+    '<h1>✅ Test Successful!</h1><p>Your email configuration is working!</p>'
+  );
+  res.json(result);
+});
 
 // Start server
 app.listen(PORT, () => {

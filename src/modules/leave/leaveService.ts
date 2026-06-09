@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import * as leaveRepository from './leaveRepository';
+import { sendLeaveRequestEmail, sendLeaveStatusEmail } from '../../services/emailService';
 
 // Helper: Calculate working days (excluding weekends)
 const calculateWorkingDays = (startDate: Date, endDate: Date): number => {
@@ -101,6 +102,14 @@ export const applyForLeave = async (employeeId: string, leaveData: any) => {
       status: 'pending'
     });
     
+    // Send email notification to admins
+    await sendLeaveRequestEmail(employeeId, {
+      type,
+      startDate,
+      endDate,
+      reason
+    });
+    
     return {
       success: true,
       message: 'Leave request submitted successfully',
@@ -163,10 +172,13 @@ export const approveLeave = async (leaveId: string, adminId: string, comments?: 
     
     const updatedRequest = await leaveRepository.updateLeaveRequest(leaveId, {
       status: 'approved',
-      approvedBy: new mongoose.Types.ObjectId(adminId), // Convert to ObjectId
+      approvedBy: new mongoose.Types.ObjectId(adminId),
       comments: comments || '',
       updatedAt: new Date()
     });
+    
+    // ✅ Send email notification to employee
+    await sendLeaveStatusEmail(leaveRequest.employeeId.toString(), 'approved', comments);
     
     return {
       success: true,
@@ -185,6 +197,14 @@ export const approveLeave = async (leaveId: string, adminId: string, comments?: 
 
 export const rejectLeave = async (leaveId: string, adminId: string, comments: string) => {
   try {
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(leaveId)) {
+      return {
+        success: false,
+        message: 'Invalid leave request ID'
+      };
+    }
+
     const leaveRequest = await leaveRepository.findLeaveRequestById(leaveId);
     
     if (!leaveRequest) {
@@ -207,6 +227,9 @@ export const rejectLeave = async (leaveId: string, adminId: string, comments: st
       comments,
       updatedAt: new Date()
     });
+    
+    // ✅ Send email notification to employee
+    await sendLeaveStatusEmail(leaveRequest.employeeId.toString(), 'rejected', comments);
     
     return {
       success: true,

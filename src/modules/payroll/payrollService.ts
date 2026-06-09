@@ -3,6 +3,7 @@ import AttendanceModel from '../../models/Attendance';
 import LeaveRequestModel from '../../models/LeaveRequest';
 import ShiftAssignmentModel from '../../models/ShiftAssignment';
 import { Types } from 'mongoose';
+import { sendPayrollProcessedEmail } from '../../services/emailService';
 
 // Helper: Calculate working days in a month
 const getWorkingDaysInMonth = (year: number, month: number): number => {
@@ -196,6 +197,9 @@ export const processPayroll = async (adminId: string, employeeId: string, month:
     } else {
       payroll = await payrollRepository.createPayroll(payrollData);
     }
+    
+    // Send email notification to employee
+    await sendPayrollProcessedEmail(employeeId, netSalary, month, year);
     
     return {
       success: true,

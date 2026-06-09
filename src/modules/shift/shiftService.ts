@@ -1,6 +1,8 @@
 import * as shiftRepository from './shiftRepository';
 import { Types } from 'mongoose';
+import { sendShiftAssignmentEmail } from '../../services/emailService';
 
+// ========== Shift Templates ==========
 
 export const createShift = async (data: any) => {
   try {
@@ -84,6 +86,9 @@ export const deleteShift = async (id: string) => {
 
 export const assignShiftToEmployee = async (data: any) => {
   try {
+    // Get shift details for email
+    const shiftTemplate = await shiftRepository.findShiftById(data.shiftId);
+    
     // Check if already assigned for this date
     const existing = await shiftRepository.findAssignmentsByEmployee(
       data.employeeId,
@@ -105,6 +110,16 @@ export const assignShiftToEmployee = async (data: any) => {
       overtimeHours: data.overtimeHours || 0,
       notes: data.notes
     });
+    
+    //  Send email notification to employee
+    if (shiftTemplate) {
+      await sendShiftAssignmentEmail(data.employeeId, {
+        title: shiftTemplate.title,
+        date: data.date,
+        startTime: shiftTemplate.startTime,
+        endTime: shiftTemplate.endTime
+      });
+    }
     
     return {
       success: true,
