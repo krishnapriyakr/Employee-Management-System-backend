@@ -13,6 +13,7 @@ import documentRoutes from './modules/documents/documentsRoutes';
 import recruitmentRoutes from './modules/recruitment/recruitmentRoutes';
 import shiftRoutes from './modules/shift/shiftRoutes';
 import payrollRoutes from './modules/payroll/payrollRoutes';
+import exportRoutes from './export/exportRoutes';
 
 import path from 'path';
 import { verifyEmailConnection } from './config/emailConfig';
@@ -58,6 +59,8 @@ app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/shift', shiftRoutes);
 
 app.use('/api/payroll', payrollRoutes);
+
+app.use('/api/export', exportRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
