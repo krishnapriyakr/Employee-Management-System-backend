@@ -1,10 +1,18 @@
 import EmployeeModel, { IEmployee } from '../../models/EmployeeModel';
+import { Types } from 'mongoose';
 
 export const createEmployee = async (employeeData: any, createdBy: string): Promise<IEmployee> => {
-  return await EmployeeModel.create({
+  // Remove employeeId if sent from frontend (let auto-generation handle it)
+  if (employeeData.employmentInfo?.employeeId) {
+    delete employeeData.employmentInfo.employeeId;
+  }
+  
+  const employee = new EmployeeModel({
     ...employeeData,
-    createdBy
+    createdBy: new Types.ObjectId(createdBy)
   });
+  
+  return await employee.save();
 };
 
 export const updateEmployee = async (id: string, updateData: any): Promise<IEmployee | null> => {

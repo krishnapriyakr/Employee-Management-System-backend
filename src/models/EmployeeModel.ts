@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IEmployee extends Document {
-  // Personal Information
   personalInfo: {
     firstName: string;
     lastName: string;
@@ -11,8 +10,6 @@ export interface IEmployee extends Document {
     gender: 'male' | 'female' | 'other';
     profileImage?: string;
   };
-  
-  // Employment Information
   employmentInfo: {
     employeeId: string;
     department: string;
@@ -21,8 +18,6 @@ export interface IEmployee extends Document {
     joiningDate: Date;
     status: 'active' | 'inactive' | 'on-leave';
   };
-  
-  // Address Information
   address: {
     street: string;
     city: string;
@@ -30,15 +25,11 @@ export interface IEmployee extends Document {
     country: string;
     pincode: string;
   };
-  
-  // Emergency Contact
   emergencyContact: {
     name: string;
     relationship: string;
     phone: string;
   };
-  
-  // System Fields
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -56,7 +47,7 @@ const employeeSchema = new Schema<IEmployee>(
       profileImage: { type: String }
     },
     employmentInfo: {
-      employeeId: { type: String, required: true, unique: true },
+      employeeId: { type: String, unique: true, sparse: true },  // ← Remove required: true
       department: { type: String, required: true },
       position: { type: String, required: true },
       salary: { type: Number, required: true },
@@ -84,11 +75,28 @@ const employeeSchema = new Schema<IEmployee>(
 
 // Auto-generate employeeId before saving
 employeeSchema.pre('save', async function (next) {
-  if (!this.isNew) return next();
+  if (this.employmentInfo.employeeId) {
+    return next(); // Skip if already has employeeId
+  }
   
-  const count = await mongoose.model('Employee').countDocuments();
-  this.employmentInfo.employeeId = `EMP${String(count + 1).padStart(3, '0')}`;
-  next();
+  try {
+    const Employee = mongoose.model('Employee');
+    const lastEmployee = await Employee.findOne().sort({ createdAt: -1 });
+    
+    let lastNumber = 0;
+    if (lastEmployee?.employmentInfo?.employeeId) {
+      const match = lastEmployee.employmentInfo.employeeId.match(/EMP(\d+)/);
+      if (match) {
+        lastNumber = parseInt(match[1]);
+      }
+    }
+    
+    const newNumber = lastNumber + 1;
+    this.employmentInfo.employeeId = `EMP${String(newNumber).padStart(3, '0')}`;
+    next();
+  } catch (error: any) {
+    next(error);
+  }
 });
 
 export default mongoose.model<IEmployee>('Employee', employeeSchema);
